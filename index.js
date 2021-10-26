@@ -1,65 +1,45 @@
-var db = require.main.require('./src/database'); 
-var validator = require('validator');
+const db = require.main.require('./src/database');
+const validator = require('validator');
 
-var plugin = {};
+const plugin = module.exports;
 
-function getCustomCSS(uid, callback) {
+async function getCustomCSS(uid) {
 	if (!uid) {
-		return callback(null, '');
+		return '';
 	}
-	db.getObjectField('user:' + uid + ':settings', 'customCSS', function(err, customCSS) {
-		if (err) {
-			return callback(err);
-		}
-
-		callback(null, customCSS || '');
-	});
+	return await db.getObjectField('user:' + uid + ':settings', 'customCSS') || '';
 }
 
-function setCustomCSS(uid, customCSS, callback) {
-	if (!uid) {
-		return callback(new Error('[[error:invalid-data]]'));
-	}
-	db.setObjectField('user:' + uid + ':settings', 'customCSS', String(customCSS || ''), function(err) {
-		callback(err);
-	});
-}
-
-plugin.addCustomSetting = function(data, callback) {
-	var customCSS = data.settings.customCSS || '';
+plugin.addCustomSetting = function (data) {
+	const customCSS = data.settings.customCSS || '';
 
 	data.customSettings.push({
 		'title': 'Custom CSS',
 		'content': '<textarea data-property="customCSS" class="form-control" type="textarea">' + validator.escape(customCSS) + '</textarea><p class="help-block">Requires a refresh to take effect.</p>'
 	});
 
-	callback(null, data);
+	return data;
 };
 
-plugin.saveUserSettings = function(data) {
-	setCustomCSS(data.uid, data.settings.customCSS, function() { });
+plugin.filterUserSaveSettings = async function (hookData) {
+	hookData.settings.customCSS = hookData.data.customCSS || '';
+	return hookData;
 };
 
-plugin.getUserSettings = function(data, callback) {
-	data.settings.customCSS = data.settings.customCSS || '';
-	callback(null, data);
+plugin.filterUserGetSettings = function(hookData) {
+	hookData.settings.customCSS = hookData.settings.customCSS || '';
+	return hookData;
 };
 
-plugin.renderHeader = function(data, callback) {
+plugin.renderHeader = async function(data) {
 	if (!data.req.uid) {
-		return callback(null, data);
+		return data;
 	}
-
-	getCustomCSS(data.req.uid, function(err, customCSS) {
-		if (err) {
-			return callback(err);
-		}
-		if (customCSS) {
-			data.templateValues.useCustomCSS = true;
-			data.templateValues.customCSS += customCSS;
-		}
-		callback(null, data);
-	});
+	const customCSS = await getCustomCSS(data.req.uid);
+	if (customCSS) {
+		data.templateValues.useCustomCSS = true;
+		data.templateValues.customCSS += customCSS;
+	}
+	return data;
 };
 
-module.exports = plugin;

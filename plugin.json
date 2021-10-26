@@ -8,12 +8,12 @@
 			"method": "addCustomSetting"
 		},
 		{
-			"hook": "action:user.saveSettings",
-			"method": "saveUserSettings"
+			"hook": "filter:user.saveSettings",
+			"method": "filterUserSaveSettings"
 		},
 		{
 			"hook": "filter:user.getSettings",
-			"method": "getUserSettings"
+			"method": "filterUserGetSettings"
 		},
 		{
 			"hook": "filter:middleware.renderHeader",
