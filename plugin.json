@@ -1,6 +1,4 @@
 {
-	"id": "nodebb-plugin-user-css",
-	"url": "https://github.com/BenLubar/nodebb-plugin-user-css",
 	"library": "./index.js",
 	"hooks": [
 		{
@@ -10,10 +8,6 @@
 		{
 			"hook": "filter:user.saveSettings",
 			"method": "filterUserSaveSettings"
-		},
-		{
-			"hook": "filter:user.getSettings",
-			"method": "filterUserGetSettings"
 		},
 		{
 			"hook": "filter:middleware.renderHeader",

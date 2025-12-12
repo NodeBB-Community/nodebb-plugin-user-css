@@ -15,19 +15,17 @@ plugin.addCustomSetting = function (data) {
 
 	data.customSettings.push({
 		'title': 'Custom CSS',
-		'content': '<textarea data-property="customCSS" class="form-control" type="textarea">' + validator.escape(customCSS) + '</textarea><p class="help-block">Requires a refresh to take effect.</p>'
+		'content': '<textarea data-property="customCSS" class="form-control" type="textarea" rows="10">' + validator.escape(String(customCSS)) + '</textarea><p class="form-text">Requires a refresh to take effect.</p>'
 	});
 
 	return data;
 };
 
 plugin.filterUserSaveSettings = async function (hookData) {
+	if (hookData.data.customCSS.length > 65535) {
+		throw new Error('Custom CSS is too long. Maximum length is 65535 characters.');
+	}
 	hookData.settings.customCSS = hookData.data.customCSS || '';
-	return hookData;
-};
-
-plugin.filterUserGetSettings = function(hookData) {
-	hookData.settings.customCSS = hookData.settings.customCSS || '';
 	return hookData;
 };
 
